@@ -1,0 +1,78 @@
+<head>
+    <title>Audio fading loop test</title>
+</head>
+
+<body>
+    <button id="button">Start</button>
+    <audio id="audio1" src="test.wav" controls></audio>
+    <audio id="audio2" src="test.wav" controls></audio>
+    <button id="play">Play</button>
+</body>
+<script>
+    function fade(element, volume, time, interval = 10) {
+        if (element.volume == volume) {
+            console.warn("someone tried to fade the same volume.", element)
+            return;
+        }
+
+        let toindex = time / interval;
+        let volumediff = Math.abs(volume - element.volume) / toindex;
+
+        if (volume > element.volume) volumediff = -volumediff;
+
+        const loop = setInterval(() => {
+            if (toindex > 1) {
+                toindex--;
+                element.volume = element.volume - volumediff;
+            } else {
+                element.volume = volume;
+                clearInterval(loop);
+            }
+        }, interval);
+    }
+
+    // This is kinda broken, wontfix ngl;
+    function fade_loop_init(element1, element2, delay) {
+        let currentelement = element1;
+        let anotherelement = element2;
+        const maxtime = element1.duration;
+        let is_changing = false;
+        currentelement.play();
+        anotherelement.volume = 0;
+
+        return setInterval(() => {
+            if (is_changing || currentelement.paused) return;
+            if (maxtime - currentelement.currentTime < 5) {
+                is_changing = true;
+                console.log("Triggered");
+                const current_volume = currentelement.volume;
+                fade(currentelement, 0, 5000, 10);
+                fade(anotherelement, current_volume, 5000, 10);
+
+                // swap
+                const _tmp = currentelement;
+                currentelement = anotherelement;
+                anotherelement = _tmp;
+
+                currentelement.play();
+                setTimeout(() => {
+                    anotherelement.currentTime = 0;
+                    is_changing = false;
+                }, 5000);
+
+            }
+        }, 100)
+    }
+
+    function start() {
+        fade_loop_init(audio1, audio2, 2000)
+        button.remove();
+        audio1.duration = 70;
+    }
+    button.onclick = () => start();
+
+    play.onclick = () => {
+        audio1.muted = !audio1.muted;
+        audio2.muted = !audio2.muted;
+    }
+</script>

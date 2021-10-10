@@ -1,0 +1,17 @@
+<head>
+    <title>Audio loop test</title>
+</head>
+
+<body>
+    <audio id="audio" src="test.wav" controls autoplay></audio>
+</body>
+<script>
+    // Idea from https://stackoverflow.com/questions/7330023/gapless-looping-audio-html5
+    audio.ontimeupdate = () => {
+        if (audio.currentTime + .44 > audio.duration) {
+            audio.currentTime = 0;
+        } else {
+            console.log(audio.duration - audio.currentTime)
+        }
+    };
+</script>
