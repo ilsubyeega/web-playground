@@ -1,0 +1,23 @@
+<button id="button">click!</button>
+<div id="context"></div>
+<script>
+    const supported = 'contacts' in navigator
+    if (!supported) {
+        button.remove();
+        context.innerText = `Contact Picker API isnt supported at this browser. (Not https or browser isnt supported)`
+    }
+    async function getContacts() {
+        try {
+            const contacts = await navigator.contacts.select(['name', 'email', 'tel', 'address', 'icon'], {
+                multiple: true
+            });
+            if (contacts == null) return;
+            button.remove();
+            context.innerText = JSON.stringify(contacts);
+        } catch (e) {
+            context.innerText = `Error: ${e}`
+        }
+
+    }
+    button.onclick = () => getContacts();
+</script>
